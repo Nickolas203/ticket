@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  cpf         String
+  age         Int
+  password    String
+  isOrganizer Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  events      Event[]  @relation("OrganizerEvents")
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  imageUrl    String?
+  city        String
+  state       String
+  organizer   User     @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  organizerId String
+  startAt     DateTime
+  createdAt   DateTime @default(now())
+  kits        Kit[]
+  terms       String?
+}
+
+model Kit {
+  id         String       @id @default(uuid())
+  event      Event        @relation(fields: [eventId], references: [id])
+  eventId    String
+  name       String
+  priceCents Int
+  quantity   Int
+  createdAt  DateTime @default(now())
+  shirtOptions ShirtOption[]
+  orderItems OrderItem[]
+}
+
+model ShirtOption {
+  id     String @id @default(uuid())
+  kit    Kit    @relation(fields: [kitId], references: [id])
+  kitId  String
+  size   String
+  stock  Int
+}
+
+model Order {
+  id         String @id @default(uuid())
+  buyerName  String
+  buyerEmail String
+  cpfBuyer   String
+  totalCents Int
+  createdAt  DateTime @default(now())
+  orderItems OrderItem[]
+  paid       Boolean @default(false)
+}
+
+model OrderItem {
+  id             String @id @default(uuid())
+  order          Order  @relation(fields: [orderId], references: [id])
+  orderId        String
+  kit            Kit    @relation(fields: [kitId], references: [id])
+  kitId          String
+  participantName String
+  participantCPF  String
+  shirtSize      String?
+  priceCents     Int
+}
