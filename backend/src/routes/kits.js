@@ -1,20 +1,21 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const prisma = new PrismaClient();
-const authMiddleware = require('../middleware/authMiddleware');
 
 // Criar kit para evento
 router.post('/', authMiddleware, async (req, res) => {
   const { eventId, name, priceCents, quantity } = req.body;
-  try{
+  try {
     const kit = await prisma.kit.create({
       data: { eventId, name, priceCents, quantity }
     });
     res.json(kit);
-  }catch(e){
+  } catch (e) {
     res.status(400).json({ error: 'Erro ao criar kit' });
   }
 });
 
-module.exports = router;
+export default router;

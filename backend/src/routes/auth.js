@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const { PrismaClient } = require('@prisma/client');
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
+
 const prisma = new PrismaClient();
 
 // Registro
@@ -14,7 +15,7 @@ router.post('/register', async (req, res) => {
       data: { name, email, password: hashed, cpf, age, isOrganizer },
     });
     res.json({ message: 'Usuário criado', userId: user.id });
-  } catch(e) {
+  } catch (e) {
     res.status(400).json({ error: 'Email já existe' });
   }
 });
@@ -23,11 +24,13 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await prisma.user.findUnique({ where: { email } });
-  if(!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+  if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+
   const valid = await bcrypt.compare(password, user.password);
-  if(!valid) return res.status(400).json({ error: 'Senha inválida' });
+  if (!valid) return res.status(400).json({ error: 'Senha inválida' });
+
   const token = jwt.sign({ userId: user.id }, 'SECRET_KEY', { expiresIn: '7d' });
   res.json({ token, userId: user.id, name: user.name });
 });
 
-module.exports = router;
+export default router;

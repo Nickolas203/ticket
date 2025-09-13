@@ -5,7 +5,7 @@ import authMiddleware from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // CREATE
-router.post('api/users', authMiddleware, async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const user = await userService.createUser(req.body);
     res.status(201).json(user);
@@ -15,7 +15,7 @@ router.post('api/users', authMiddleware, async (req, res) => {
 });
 
 // READ todos
-router.get('api/users', authMiddleware, async (req, res) => {
+router.get('/', authMiddleware, async (req, res) => {
   try {
     const users = await userService.getUsers();
     res.json(users);
@@ -25,7 +25,7 @@ router.get('api/users', authMiddleware, async (req, res) => {
 });
 
 // READ por ID
-router.get('api/users/:id', authMiddleware, async (req, res) => {
+router.get(':id', authMiddleware, async (req, res) => {
   try {
     const user = await userService.getUserById(req.params.id);
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
@@ -36,7 +36,7 @@ router.get('api/users/:id', authMiddleware, async (req, res) => {
 });
 
 // UPDATE
-router.put('api/users/:id', authMiddleware, async (req, res) => {
+router.put(':id', authMiddleware, async (req, res) => {
   try {
     const user = await userService.updateUser(req.params.id, req.body);
     res.json(user);
@@ -46,7 +46,7 @@ router.put('api/users/:id', authMiddleware, async (req, res) => {
 });
 
 // DELETE
-router.delete('api/users/:id', authMiddleware, async (req, res) => {
+router.delete(':id', authMiddleware, async (req, res) => {
   try {
     await userService.deleteUser(req.params.id);
     res.json({ message: "Usuário deletado com sucesso" });

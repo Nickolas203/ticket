@@ -1,19 +1,22 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const prisma = new PrismaClient();
-const authMiddleware = require('../middleware/authMiddleware');
 
 // Criar ordem de compra
 router.post('/', authMiddleware, async (req, res) => {
   const { buyerName, buyerEmail, cpfBuyer, items } = req.body;
-  try{
+  try {
     let total = 0;
-    for(let item of items) total += item.priceCents;
+    for (let item of items) total += item.priceCents;
+
     const order = await prisma.order.create({
       data: { buyerName, buyerEmail, cpfBuyer, totalCents: total, paid: false }
     });
-    for(let item of items){
+
+    for (let item of items) {
       await prisma.orderItem.create({
         data: {
           orderId: order.id,
@@ -25,10 +28,11 @@ router.post('/', authMiddleware, async (req, res) => {
         }
       });
     }
+
     res.json({ message: 'Ordem criada', orderId: order.id });
-  }catch(e){
+  } catch (e) {
     res.status(400).json({ error: 'Erro ao criar ordem' });
   }
 });
 
-module.exports = router;
+export default router;

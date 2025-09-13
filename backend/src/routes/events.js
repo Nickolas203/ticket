@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
+import { PrismaClient } from '@prisma/client';
+import authMiddleware from '../middleware/authMiddleware.js';
+
 const prisma = new PrismaClient();
-const authMiddleware = require('../middleware/authMiddleware');
 
 // Listar eventos
 router.get('/', async (req, res) => {
@@ -13,17 +14,23 @@ router.get('/', async (req, res) => {
 // Criar evento (organizador)
 router.post('/', authMiddleware, async (req, res) => {
   const { title, description, city, state, startAt, imageUrl, terms } = req.body;
-  try{
+  try {
     const event = await prisma.event.create({
       data: {
-        title, description, city, state, startAt: new Date(startAt),
-        imageUrl, terms, organizerId: req.userId
+        title,
+        description,
+        city,
+        state,
+        startAt: new Date(startAt),
+        imageUrl,
+        terms,
+        organizerId: req.userId
       }
     });
     res.json(event);
-  }catch(e){
+  } catch (e) {
     res.status(400).json({ error: 'Erro ao criar evento' });
   }
 });
 
-module.exports = router;
+export default router;
